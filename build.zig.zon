@@ -1,7 +1,7 @@
 .{
     .name = .zein,
 
-    .version = "0.0.0",
+    .version = "0.0.1",
     .fingerprint = 0x75ef0a9e9c6a3cea, // Changing this has security and trust implications.
 
     .minimum_zig_version = "0.14.0",
