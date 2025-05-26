@@ -3,8 +3,11 @@ const mem = std.mem;
 const fs = std.fs;
 const aio = @import("aio");
 
-const Handler = @import("handler.zig").Handler;
-const Middleware = @import("middleware.zig").MiddleWare;
+const Handler = @import("./interfaces/handler.zig").Handler;
+const Middleware = @import("./interfaces/middleware.zig").MiddleWare;
+
+const HandlerList = @import("handlers.zig").HandlerList;
+const MiddleWareList = @import("middlewares.zig").MiddleWareList;
 
 const http = @import("http");
 const Request = http.Request;
@@ -13,17 +16,19 @@ const Method = http.Method;
 const Status = http.Status;
 const Mime = http.Mime;
 
+pub const Routes = struct {};
+
 pub const Router = struct {
     allocator: std.mem.Allocator,
-    handlers: std.ArrayList(Handler),
-    middlewares: std.ArrayList(Middleware),
+    handlers: HandlerList, //std.ArrayList(Handler),
+    middlewares: MiddleWareList, //std.ArrayList(Middleware),
     static_dir: []const u8,
 
     pub fn init(allocator: std.mem.Allocator, dir: []const u8) !Router {
         return Router{
             .allocator = allocator,
-            .handlers = std.ArrayList(Handler).init(allocator),
-            .middlewares = std.ArrayList(Middleware).init(allocator),
+            .handlers = HandlerList.init(allocator), //std.ArrayList(Handler).init(allocator),
+            .middlewares = MiddleWareList.init(allocator), //std.ArrayList(Middleware).init(allocator),
             .static_dir = dir,
         };
     }
@@ -58,8 +63,14 @@ pub const Router = struct {
         }
     }
 
-    fn matchRoute(self: *Router, method: Method, route: []const u8) ?Handler {
-        for (self.handlers.items) |handler| {
+    fn matchRoute(self: *Router, method: Method, route: []const u8) ?*Handler {
+        // for (self.handlers.items) |handler| {
+        //     if ((handler.method == method) and (std.mem.eql(u8, handler.route, route))) {
+        //         return handler;
+        //     }
+        // }
+        var hit = self.handlers.iterator();
+        while (hit.next()) |handler| {
             if ((handler.method == method) and (std.mem.eql(u8, handler.route, route))) {
                 return handler;
             }
@@ -68,9 +79,14 @@ pub const Router = struct {
     }
 
     pub fn handle(self: *Router, req: *Request, res: *Response) !void {
-        for (self.middlewares.items) |mw| {
+        // for (self.middlewares.items) |mw| {
+        //     try mw.execute(self.allocator, req, res);
+        // }
+        var mit = self.middlewares.iterator();
+        while (mit.next()) |mw| {
             try mw.execute(self.allocator, req, res);
         }
+
         const isApi = self.isApiRequest(req);
         if (isApi) {
             if (self.matchRoute(req.method, req.route.items)) |handler| {

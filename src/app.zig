@@ -9,11 +9,8 @@ const Request = http.Request;
 const Response = http.Response;
 const Status = http.Status;
 
-// const Request = @import("./http/request.zig").Request;
-// const Response = @import("./http/response.zig").Response;
-// const Status = @import("./http/status.zig").Status;
-const Middleware = @import("./middleware.zig").MiddleWare;
-const Handler = @import("./handler.zig").Handler;
+const Middleware = @import("./interfaces/middleware.zig").MiddleWare;
+const Handler = @import("./interfaces/handler.zig").Handler;
 const WebSocket = @import("./ws/websocket.zig");
 
 const App = @This();
@@ -130,7 +127,7 @@ pub fn listen(self: *App) !void {
         std.log.err("Failed to listen: {s}", .{@errorName(err)});
     };
     std.log.info("Listening on {any}", .{self.address});
-    
+
     _ = try self.scheduler.spawn(run, .{self}, .{});
     try self.scheduler.run(.wait);
 }

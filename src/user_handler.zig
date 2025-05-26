@@ -5,7 +5,7 @@ const Response = http.Response;
 const Method = http.Method;
 const Status = http.Status;
 
-const Handler = @import("./handler.zig").Handler;
+const Handler = @import("./interfaces/handler.zig").Handler;
 
 pub const UserHandler = struct {
     method: Method = .get,
