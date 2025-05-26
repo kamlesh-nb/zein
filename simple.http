@@ -1,0 +1,5 @@
+
+GET http://localhost:2369/api/users?id=2309&name=kamlesh&age=56
+content-type: application/json
+
+ 
