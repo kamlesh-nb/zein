@@ -3,3 +3,4 @@
 zig-out/
 git.cmd
 libs/
+.DS_Store
